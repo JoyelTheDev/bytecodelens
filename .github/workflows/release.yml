@@ -32,19 +32,17 @@ jobs:
       - name: Rename for release clarity
         shell: bash
         run: mv build/libs/BytecodeLens-*-all.jar build/libs/BytecodeLens-all.jar
-      
       - name: Upload to release (on tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: build/libs/BytecodeLens-all.jar
-          
       - name: Upload as workflow artefact (manual runs)
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v4
         with:
           name: BytecodeLens-fat-jar
-          path: build/libs/BytecodeLens-all.jar
+          path: build/libs/BytecodeLens-*-all.jar
 
   native-installers:
     strategy:
@@ -81,9 +79,9 @@ jobs:
         run: ./gradlew jar
 
       # Build order matters: copyRuntimeDeps is a Gradle Copy task that writes into
-      # build/jpackage-input/ — run it FIRST, then overlay our own app.jar.
-      # Reversing this order is what was failing in the earlier run (the `cp`
-      # happened, then Gradle rewrote the directory without the jar).
+       #   build/jpackage-input/ — run it FIRST, then overlay our own app.jar.
+       # Reversing this order is what was failing in the earlier run (the `cp`
+       # happened, then Gradle rewrote the directory without the jar).
       - name: Stage jpackage input directory
         shell: bash
         run: |
@@ -94,7 +92,7 @@ jobs:
           ls -la build/jpackage-input | head
 
       # jpackage --app-version rejects "v1.0.0" (rejects letter prefixes on Windows
-      # because .msi ProductVersion must be numeric). Strip leading v.
+       # because .msi ProductVersion must be numeric). Strip leading v.
       - name: Compute clean version
         id: version
         shell: bash
