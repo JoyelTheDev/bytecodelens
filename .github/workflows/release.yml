@@ -56,7 +56,7 @@ jobs:
           files: build/libs/BytecodeLens-all.jar
 
   # ---------------------------------------------------------------------------
-  # 2. Native installers  (.msi · .dmg x2 · .deb)
+  # 2. Native installers  (.msi · · .deb)
   # ---------------------------------------------------------------------------
   native-installers:
     strategy:
@@ -66,12 +66,6 @@ jobs:
           - os: windows-latest
             jpackage-type: msi
             suffix: windows-x64.msi
-          - os: macos-13            # Intel
-            jpackage-type: dmg
-            suffix: macos-x64.dmg
-          - os: macos-latest        # Apple Silicon
-            jpackage-type: dmg
-            suffix: macos-aarch64.dmg
           - os: ubuntu-latest
             jpackage-type: deb
             suffix: linux-x64.deb
@@ -144,21 +138,6 @@ jobs:
             --main-class dev.share.bytecodelens.Launcher \
             --win-shortcut \
             --win-menu \
-            --dest build/installers
-
-      - name: Run jpackage (macOS .dmg)
-        if: startsWith(matrix.os, 'macos')
-        shell: bash
-        run: |
-          jpackage \
-            --type dmg \
-            --name BytecodeLens \
-            --app-version "${{ steps.version.outputs.value }}" \
-            --vendor "BytecodeLens" \
-            --description "The Java RE cockpit" \
-            --input build/jpackage-input \
-            --main-jar app.jar \
-            --main-class dev.share.bytecodelens.Launcher \
             --dest build/installers
 
       - name: Run jpackage (Linux .deb)
